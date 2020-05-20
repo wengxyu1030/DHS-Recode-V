@@ -88,8 +88,8 @@ order *,sequential
 	replace c_anc_ur_q = . if mi(c_anc_ur) & c_anc_any == 1 
 	
 	*c_anc_ir: iron supplements taken during pregnancy of births in last 2 years
-	egen anc_ir = rowtotal(m45 h42),mi
-	gen c_anc_ir = inrange(anc_ir,1,2) if  !mi(anc_ir)
+	clonevar c_anc_ir = m45
+	replace c_anc_ir = . if m45 == 8
 	
 	*c_anc_ir_q: iron supplements taken during pregnancy among ANC users of births in last 2 years
 	gen c_anc_ir_q = (c_anc_ir == 1 ) if c_anc_any == 1 
