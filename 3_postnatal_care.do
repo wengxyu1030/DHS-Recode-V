@@ -4,10 +4,10 @@
 ****************************** 
 
     *c_pnc_skill: m52,m72 by var label text. (m52 is added in Recode VI.
-	gen m52_skill = 0 if !inlist(m50,0,1) 
+	//gen m52_skill = 0 if m51a != .   //using m51a (Time after the delivery for the respondent to receive a checkup) as filter question. However no info on who checked (unless at home m68)
 	gen m72_skill = 0 if !inlist(m70,0,1) 
 	
-	foreach var of varlist m52 m72 {
+	foreach var of varlist /* m52 */ m72 {
     decode `var', gen(`var'_lab)
 	replace `var'_lab = lower(`var'_lab )
 	replace  `var'_skill= 1 if ///
@@ -19,17 +19,17 @@
 	   the first group but don't contain any words in the second group */
 	
 	
-	*c_pnc_any : mother OR child receive PNC in first six weeks by skilled health worker
-    gen c_pnc_any = 0 if !mi(m70) & !mi(m50) 
-    replace c_pnc_any = 1 if (m71 <= 306 & m72_skill == 1 ) | (m51 <= 306 & m52_skill == 1)
-    replace c_pnc_any = . if inlist(m71,199,299,399,998)| inlist(m51,998)| m72_skill == . | m52_skill == .
+	*c_pnc_any : mother OR child receive PNC in first six weeks by skilled health worker  //to be decided whether to keep? because m52_skill is missing. 
+    gen c_pnc_any = 0 if !mi(m70) & !mi(m51a)  
+    replace c_pnc_any = 1 if (m71 <= 306 & m72_skill == 1 ) | (m51a <= 306 /* & m52_skill == 1 */)
+    replace c_pnc_any = . if inlist(m71,199,299,399,998)| inlist(m51a,998)| m72_skill == . /* | m52_skill == . */
 
 	
 	*c_pnc_eff: mother AND child in first 24h by skilled health worker	
 	gen c_pnc_eff = .
-	replace c_pnc_eff = 0 if m51 != . | m52_skill != . | m71 != . | m72_skill != .   
-    replace c_pnc_eff = 1 if ((inrange(m51,100,124) | m51 == 201 ) & m52_skill == 1) & ((inrange(m71,100,124) | m71 == 201) & m72_skill == 1 )
-    replace c_pnc_eff = . if inlist(m51,199,299,399,998) | m52_skill == . | inlist(m71,199,299,399,998) | m72_skill == .              
+	replace c_pnc_eff = 0 if m51a != . | /* m52_skill != . | */ m71 != . | m72_skill != .   
+    replace c_pnc_eff = 1 if ((inrange(m51a,100,124) | m51a == 201 ) /* & m52_skill == 1 */) & ((inrange(m71,100,124) | m71 == 201) & m72_skill == 1 )
+    replace c_pnc_eff = . if inlist(m51a,199,299,399,998) | /* m52_skill == . | */ inlist(m71,199,299,399,998) | m72_skill == .              
 	
 	*c_pnc_eff_q: mother AND child in first 24h by skilled health worker among those with any PNC
 	gen c_pnc_eff_q = c_pnc_eff

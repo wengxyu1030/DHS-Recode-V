@@ -73,17 +73,22 @@ c_ari2 c_diarrhea 	c_diarrhea_hmf	c_diarrhea_mof c_diarrhea_pro	c_fever	c_treatd
 
 gen ispreferred = "1"   //there are dif. definition for same indicator in DHS data. 
 
-*indicators calculate using ant_samplewieght (child sample weight)
+*indicators calculate using ant_samplewieght (child sample weight = women sample weight)
 foreach var of var c_anc c_anc_bp	c_anc_bs c_anc_ear c_anc_ir c_anc_ski c_anc_tet c_anc_ur c_caesarean c_earlybreast c_sba  ///
 c_bcg	c_dpt1	c_dpt2	c_dpt3	c_fullimm	c_measles	c_polio1	c_polio2	c_polio3		///
-c_ari2 c_diarrhea 	c_diarrhea_hmf	c_diarrhea_mof	c_fever c_diarrhea_pro c_treatARI2 c_treatdiarrhea c_underweight	c_stunted	c_ITN {
-egen value_my`var' = wtmean(`var'), weight(ant_sampleweight)
+c_ari2 c_diarrhea 	c_diarrhea_hmf	c_diarrhea_mof	c_fever c_diarrhea_pro c_treatARI2 c_treatdiarrhea  {
+egen value_my`var' = wtmean(`var'), weight(w_sampleweight)
 }  
 
 *indicators calculate using ant_samplewieght (women sample weight)
-foreach var of var w_CPR w_need_fp w_unmet_fp w_metany_fp w_metmod_fp w_bmi_1549 w_obese_1549 w_overweight_1549{
+foreach var of var w_CPR w_need_fp w_unmet_fp w_metany_fp w_metmod_fp w_bmi_1549 w_obese_1549 w_overweight_1549 {
 egen value_my`var' = wtmean(`var'), weight(w_sampleweight)
 }  
+
+*indicators calculate using household sample weight
+foreach var of var c_underweight c_stunted	c_ITN {
+egen value_my`var' = wtmean(`var'), weight(hh_sampleweight)
+}
 
 keep surveyid ispreferred value*
 keep if _n == 1
@@ -170,20 +175,15 @@ The bidx is nt used in the hefpi indicator caluclation
 *********************************
 *****Calculate the indicators****
 *********************************
-*indicators calculate using ant_samplewieght (child sample weight)
-foreach var of var c_ITN c_anc	c_fullimm c_measles c_sba c_stunted c_treatARI2	///
-c_treatdiarrhea	c_underweight {
-egen value_my`var' = wtmean(`var'), weight(ant_sampleweight)
-}  
-
-*indicators calculate using ant_samplewieght (women sample weight)
+*indicators calculate using w_samplewieght (women sample weight)
 foreach var of var w_CPR w_bmi_1549 w_condom_conc w_height_1549 w_mammogram w_obese_1549 ///
-w_overweight_1549 w_papsmear w_unmet_fp{
+w_overweight_1549 w_papsmear w_unmet_fp c_anc	c_fullimm c_measles c_sba c_stunted c_treatARI2	///
+c_treatdiarrhea	{
 egen value_my`var' = wtmean(`var'), weight(w_sampleweight)
 }   
 
 *indicator caculate at adult level (using individual sample weight）
-foreach var of var a_bp_dial a_bp_sys a_bp_treat a_diab_treat  {
+foreach var of var a_bp_dial a_bp_sys a_bp_treat a_diab_treat c_ITN c_underweight {
 egen value_my`var' = wtmean(`var'),weight(hh_sampleweight)
 }
 

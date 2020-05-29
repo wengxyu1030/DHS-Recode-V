@@ -33,8 +33,8 @@
 *hh_wealthscore	Wealth index score   
 	clonevar hhwealthscore_old = hv271
 	egen hhwealthscore_oldmin=min(hhwealthscore_old) 
-	gen hhwealthscore=hhwealthscore_old-hhwealthscore_oldmin
-	replace hhwealthscore=hhwealthscore/10e6 
+	gen hh_wealthscore=hhwealthscore_old-hhwealthscore_oldmin
+	replace hh_wealthscore=hh_wealthscore/10e6 
 	
 
 *hv001 Sampling cluster number (original)
