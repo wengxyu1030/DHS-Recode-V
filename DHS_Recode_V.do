@@ -2,7 +2,7 @@
 *** DHS MONITORING: V
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-version 14.0
+version 15.1
 clear all
 set matsize 3956, permanent
 set more off, permanent
@@ -38,9 +38,63 @@ do "${DO}/0_GLOBAL.do"
 
 foreach name in $DHScountries_Recode_V{	
 
-tempfile birth ind men hm hiv hh iso 
+tempfile birth ind men hm hiv hh zsc iso 
 
+************************************
+***domains using zsc data***********
+************************************
+capture confirm file "${SOURCE}/DHS/DHS-`name'/DHS-`name'zsc.dta"	
+if _rc == 0 {
+    use "${SOURCE}/DHS/DHS-`name'/DHS-`name'zsc.dta", clear
+    if hwlevel == 2 {
+		gen caseid = hwcaseid
+		gen bidx = hwline   	  
+		merge 1:1 caseid bidx using `birth'
+    	gen ant_sampleweight = v005/10e6  
+    	drop if _!=3
+		
+  		foreach var in hc70 hc71 {
+  	 	replace `var'=. if `var'>900
+  	 	replace `var'=`var'/100
+  		}
+  		replace hc70=. if hc70<-6 | hc70>6
+  		replace hc71=. if hc71<-6 | hc71>5
+ 		gen c_stunted=1 if hc70<-2
+ 		replace c_stunted=0 if hc70>=-2 & hc70!=.
+ 		gen c_underweight=1 if hc71<-2
+ 		replace c_underweight=0 if hc71>=-2 & hc71!=.
+		
+		keep ant_* c_* caseid bidx
+		save `zsc_birth'
+    }
 
+ 	if hwlevel == 1 {
+ 		use "${SOURCE}/DHS/DHS-`name'/DHS-`name'zsc.dta", clear
+ 		gen hhid = hwhhid
+ 		gen hvidx = hwline
+ 		merge 1:1 hhid hvidx using "${SOURCE}/DHS/DHS-`name'/DHS-`name'hm.dta", keepusing(hv103 hv001 hv002 hv005)
+ 		drop if hv103==0
+ 		gen ant_sampleweight = hv005/10e6
+ 		drop if _!=3
+		gen ant_hm = 1
+		
+  		foreach var in hc70 hc71 {
+  	 	replace `var'=. if `var'>900
+  	 	replace `var'=`var'/100
+  		}
+  		replace hc70=. if hc70<-6 | hc70>6
+  		replace hc71=. if hc71<-6 | hc71>5
+ 		gen c_stunted=1 if hc70<-2
+ 		replace c_stunted=0 if hc70>=-2 & hc70!=.
+ 		gen c_underweight=1 if hc71<-2
+ 		replace c_underweight=0 if hc71>=-2 & hc71!=.
+	    
+		keep ant_* c_* hhid hvidx
+		save `zsc_hm'
+    }
+
+ }
+ 
 ******************************
 *****domains using birth data*
 ******************************
@@ -56,7 +110,12 @@ use "${SOURCE}/DHS-`name'/DHS-`name'birth.dta", clear
     do "${DO}/8_child_illness"
     do "${DO}/10_child_mortality"
     do "${DO}/11_child_other"
-
+	
+	capture confirm file "${SOURCE}/DHS/DHS-`name'/DHS-`name'zsc.dta"
+	if _rc == 0 {
+	merge 1:1 caseid bidx using `zsc_birth'
+    }
+	
 *housekeeping for birthdata
    //generate the demographics for child who are dead or no longer living in the hh. 
    
@@ -79,7 +138,7 @@ use "${SOURCE}/DHS-`name'/DHS-`name'birth.dta", clear
     gen hm_doi = v008
 	
 rename (v001 v002 b16) (hv001 hv002 hvidx)
-keep hv001 hv002 hvidx bidx c_* mor_* w_* hm_*
+keep hv001 hv002 hvidx bidx c_* mor_* w_* hm_* ant_*
 save `birth'
 
 ******************************
@@ -107,24 +166,33 @@ save `ind'
 ************************************
 use "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", clear
 gen name = "`name'"
-
-    do "${DO}/9_child_anthropometrics"    
     do "${DO}/13_adult"
     do "${DO}/14_demographics"
 	
+capture confirm file "${SOURCE}/DHS/DHS-`name'/DHS-`name'zsc.dta"
+    if_rc != 0 {
+    use "${SOURCE}/DHS/DHS-`name'/DHS-`name'hm.dta", clear
+    do "${DO}/9_child_anthropometrics" 
+    }	
+	
+	if_rc == 0 {
+	merge 1:1 hhid hvidx using `zsc_hm'
+	}
+	
 keep hv001 hv002 hvidx hc70 hc71 ///
-c_* ant_* a_* hm_* ln
+c_* ant_* a_* hm_* ln 
 save `hm'
 
 capture confirm file "${SOURCE}/DHS/DHS-`name'/DHS-`name'hiv.dta"
- if _rc==0 {
+ 	if _rc==0 {
     use "${SOURCE}/DHS/DHS-`name'/DHS-`name'hiv.dta", clear
     do "${DO}/12_hiv"
- }
- if _rc!= 0 {
+ 	}
+ 	if _rc!= 0 {
     gen a_hiv = . 
     gen a_hiv_sampleweight = .
-  }  
+    }  
+keep a_hiv* hv001 hv002 hvidx
 save `hiv'
 
 use `hm',clear
@@ -146,6 +214,7 @@ use "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", clear
 
 keep hv001 hv002 hv003 hh_* 
 save `hh' 
+
 
 ************************************
 *****merge to microdata*************
