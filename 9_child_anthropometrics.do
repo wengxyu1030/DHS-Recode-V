@@ -8,10 +8,10 @@
  gen ant_sampleweight = hv005/1000000
  
  drop if hv103==0
- /* ren hv001 v001 
+/*  ren hv001 v001 
  ren hv002 v002 
- ren hvidx b16
- */
+ ren hvidx b16 */
+
  
  foreach var in hc70 hc71 {
  replace `var'=. if `var'>900
