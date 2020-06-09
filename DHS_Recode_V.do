@@ -43,9 +43,9 @@ tempfile birth ind men hm hiv hh zsc zsc_hm zsc_birth iso
 ************************************
 ***domains using zsc data***********
 ************************************
-capture confirm file "${SOURCE}/DHS/DHS-`name'/DHS-`name'zsc.dta"	
+capture confirm file "${SOURCE}/DHS-`name'/DHS-`name'zsc.dta"	//Note there are cases where dta is stored as DTA (capital)
 if _rc == 0 {
-    use "${SOURCE}/DHS/DHS-`name'/DHS-`name'zsc.dta", clear
+    use "${SOURCE}/DHS-`name'/DHS-`name'zsc.dta", clear
     if hwlevel == 2 {
 		gen caseid = hwcaseid
 		gen bidx = hwline   	  
@@ -70,7 +70,7 @@ if _rc == 0 {
     }
 
  	if hwlevel == 1 {
- 		use "${SOURCE}/DHS/DHS-`name'/DHS-`name'zsc.dta", clear
+ 		use "${SOURCE}/DHS-`name'/DHS-`name'zsc.dta", clear
  		gen hhid = hwhhid
  		gen hvidx = hwline
  		merge 1:1 hhid hvidx using "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", keepusing(hv103 hv001 hv002 hv005)
@@ -187,9 +187,9 @@ keep hv001 hv002 hvidx hc70 hc71 ///
 c_* a_* hm_* ln 
 save `hm'
 
-capture confirm file "${SOURCE}/DHS/DHS-`name'/DHS-`name'hiv.dta"
+capture confirm file "${SOURCE}/DHS-`name'/DHS-`name'hiv.dta"
  	if _rc==0 {
-    use "${SOURCE}/DHS/DHS-`name'/DHS-`name'hiv.dta", clear
+    use "${SOURCE}/DHS-`name'/DHS-`name'hiv.dta", clear
     do "${DO}/12_hiv"
  	}
  	if _rc!= 0 {
