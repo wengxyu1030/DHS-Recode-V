@@ -313,7 +313,7 @@ preserve
     do "${DO}/Label_var" 
 	
 *** Clean the intermediate data
-    capture confirm file "${INTER}/zsc_hm.dta"
+    capture confirm file "${INTER}/zsc_birth.dta"
     if _rc == 0 {
     erase "${INTER}/zsc_birth.dta"
     }	
