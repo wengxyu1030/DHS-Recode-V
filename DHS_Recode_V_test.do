@@ -38,18 +38,18 @@ global DHScountries_Recode_V "Congorep2005"
 
 foreach name in $DHScountries_Recode_V{	
 
-tempfile birth ind men hm hiv hh zsc zsc_hm zsc_birth iso 
+tempfile birth ind men hm hiv hh zsc iso 
 
 ************************************
 ***domains using zsc data***********
 ************************************
-capture confirm file "${SOURCE}/DHS/DHS-`name'/DHS-`name'zsc.dta"	
+capture confirm file "${SOURCE}/DHS-`name'/DHS-`name'zsc.dta"	//Note there are cases where dta is stored as DTA (capital)
 if _rc == 0 {
-    use "${SOURCE}/DHS/DHS-`name'/DHS-`name'zsc.dta", clear
+    use "${SOURCE}/DHS-`name'/DHS-`name'zsc.dta", clear
     if hwlevel == 2 {
 		gen caseid = hwcaseid
 		gen bidx = hwline   	  
-		merge 1:1 caseid bidx using `birth'
+		merge 1:1 caseid bidx using "${SOURCE}/DHS-`name'/DHS-`name'birth.dta"
     	gen ant_sampleweight = v005/10e6  
     	drop if _!=3
 		
@@ -65,12 +65,11 @@ if _rc == 0 {
  		replace c_underweight=0 if hc71>=-2 & hc71!=.
 		
 		rename ant_sampleweight c_ant_sampleweight
-		keep c_* caseid bidx
+		keep c_* caseid bidx hwlevel
 		save "${INTER}/zsc_birth.dta",replace
     }
 
  	if hwlevel == 1 {
- 		use "${SOURCE}/DHS/DHS-`name'/DHS-`name'zsc.dta", clear
  		gen hhid = hwhhid
  		gen hvidx = hwline
  		merge 1:1 hhid hvidx using "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", keepusing(hv103 hv001 hv002 hv005)
@@ -187,9 +186,9 @@ keep hv001 hv002 hvidx hc70 hc71 ///
 c_* a_* hm_* ln 
 save `hm'
 
-capture confirm file "${SOURCE}/DHS/DHS-`name'/DHS-`name'hiv.dta"
+capture confirm file "${SOURCE}/DHS-`name'/DHS-`name'hiv.dta"
  	if _rc==0 {
-    use "${SOURCE}/DHS/DHS-`name'/DHS-`name'hiv.dta", clear
+    use "${SOURCE}/DHS-`name'/DHS-`name'hiv.dta", clear
     do "${DO}/12_hiv"
  	}
  	if _rc!= 0 {
@@ -313,7 +312,7 @@ preserve
     do "${DO}/Label_var" 
 	
 *** Clean the intermediate data
-    capture confirm file "${INTER}/zsc_hm.dta"
+    capture confirm file "${INTER}/zsc_birth.dta"
     if _rc == 0 {
     erase "${INTER}/zsc_birth.dta"
     }	
