@@ -65,7 +65,7 @@ if _rc == 0 {
  		replace c_underweight=0 if hc71>=-2 & hc71!=.
 		
 		rename ant_sampleweight c_ant_sampleweight
-		keep c_* caseid bidx hwlevel
+		keep c_* caseid bidx hwlevel hc70 hc71
 		save "${INTER}/zsc_birth.dta",replace
     }
 
@@ -89,8 +89,8 @@ if _rc == 0 {
  		gen c_underweight=1 if hc71<-2
  		replace c_underweight=0 if hc71>=-2 & hc71!=.
 	    
-		rename ant_sampleweight c_ant_sampleweight
-		keep c_* hhid hvidx
+		rename ant_sampleweight c_ant_sampleweight 
+		keep c_* hhid hvidx hc70 hc71
 		save "${INTER}/zsc_hm.dta",replace
     }
 
@@ -114,7 +114,8 @@ use "${SOURCE}/DHS-`name'/DHS-`name'birth.dta", clear
 	
 	capture confirm file "${INTER}/zsc_birth.dta"
 	if _rc == 0 {
-	merge 1:1 caseid bidx using "${INTER}/zsc_birth.dta"
+	merge 1:1 caseid bidx using "${INTER}/zsc_birth.dta",nogen
+	rename (hc70 hc71) (c_hc70 c_hc71)							   
     }
 	
 *housekeeping for birthdata
@@ -172,18 +173,22 @@ gen name = "`name'"
     do "${DO}/14_demographics"
 	
 capture confirm file "${INTER}/zsc_hm.dta"
-    if _rc != 0 {
-    do "${DO}/9_child_anthropometrics" 
-	rename ant_sampleweight c_ant_sampleweight
-    }	
-	
 	if _rc == 0 {
-	merge 1:1 hhid hvidx using "${INTER}/zsc_hm.dta"
-
+	merge 1:1 hhid hvidx using "${INTER}/zsc_hm.dta",nogen
+	rename (hc70 hc71) (hm_hc70 hm_hc71)
 	}
 	
-keep hv001 hv002 hvidx hc70 hc71 ///
-c_* a_* hm_* ln 
+    if _rc != 0 {
+	  capture confirm file "${INTER}/zsc_birth.dta"
+	    if _rc != 0 {
+          do "${DO}/9_child_anthropometrics"  //if there's no zsc related file, then run 9_child_anthropometrics
+	      rename ant_sampleweight c_ant_sampleweight
+		}
+    }	
+	
+gen c_placeholder = 1
+keep hv001 hv002 hvidx  ///
+a_* hm_* ln c_*
 save `hm'
 
 capture confirm file "${SOURCE}/DHS-`name'/DHS-`name'hiv.dta"
@@ -240,8 +245,20 @@ use `hm',clear
     merge m:m hv001 hv002 hvidx using `ind',nogen update
 	merge m:m hv001 hv002       using `hh',nogen update
     
-	rename c_ant_sampleweight ant_sampleweight
     tab hh_urban,mi  //check whether all hh member + dead child + child lives outside hh assinged hh info
+
+capture confirm variable c_hc70 c_hc71 
+if _rc == 0 {
+rename (c_hc70 c_hc71 ) (hc70 hc71 )
+}
+
+capture confirm variable hm_hc70 hm_hc71 
+if _rc == 0 {
+rename (hm_hc70 hm_hc71 ) (hc70 hc71 )
+}
+
+rename c_ant_sampleweight ant_sampleweight
+drop c_placeholder													
 
 ***survey level data
     gen survey = "DHS-`name'"
