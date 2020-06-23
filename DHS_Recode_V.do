@@ -188,7 +188,7 @@ capture confirm file "${INTER}/zsc_hm.dta"
 	
 gen c_placeholder = 1
 keep hv001 hv002 hvidx  ///
-a_* hm_* ln c_*
+a_* hm_* ln c_* hc70 hc71
 save `hm'
 
 capture confirm file "${SOURCE}/DHS-`name'/DHS-`name'hiv.dta"
