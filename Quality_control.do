@@ -180,14 +180,19 @@ The bidx is nt used in the hefpi indicator caluclation
 *********************************
 *indicators calculate using w_samplewieght (women sample weight)
 foreach var of var w_CPR w_bmi_1549 w_condom_conc w_height_1549 w_mammogram w_obese_1549 ///
-w_overweight_1549 w_papsmear w_unmet_fp c_anc	c_fullimm c_measles c_sba c_stunted c_treatARI2	///
+w_overweight_1549 w_papsmear w_unmet_fp c_anc	c_fullimm c_measles c_sba  c_treatARI2	///
 c_treatdiarrhea	{
 egen value_my`var' = wtmean(`var'), weight(w_sampleweight)
 }   
 
 *indicator caculate at adult level (using individual sample weight）
-foreach var of var a_bp_dial a_bp_sys a_bp_treat a_diab_treat c_ITN c_underweight {
+foreach var of var a_bp_dial a_bp_sys a_bp_treat a_diab_treat c_ITN {
 egen value_my`var' = wtmean(`var'),weight(hh_sampleweight)
+}
+
+*indicator caculate for child_anthropometrics (using ant_sampleweight）
+foreach var of var c_underweight c_stunted {
+egen value_my`var' = wtmean(`var'),weight(ant_sampleweight)
 }
 
 
