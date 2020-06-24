@@ -91,7 +91,10 @@ egen value_my`var' = wtmean(`var'), weight(hh_sampleweight)
 }
 
 *indicators using ant_sampleweight
-c_underweight c_stunted
+foreach var of var c_underweight c_stunted{    
+egen value_my`var' = wtmean(`var'), weight(ant_sampleweight)
+}
+
 
 keep surveyid ispreferred value*
 keep if _n == 1
