@@ -183,12 +183,13 @@ capture confirm file "${INTER}/zsc_hm.dta"
 	    if _rc != 0 {
           do "${DO}/9_child_anthropometrics"  //if there's no zsc related file, then run 9_child_anthropometrics
 	      rename ant_sampleweight c_ant_sampleweight
+	      rename (hc70 hc71) (hm_hc70 hm_hc71)
 		}
     }	
 	
 gen c_placeholder = 1
 keep hv001 hv002 hvidx  ///
-a_* hm_* ln c_* hc70 hc71
+a_* hm_* ln c_* 
 save `hm'
 
 capture confirm file "${SOURCE}/DHS-`name'/DHS-`name'hiv.dta"
