@@ -34,7 +34,7 @@ global DO "C:\Users\wb500886\OneDrive - WBG\10_Health\UHC\GitHub\DHS-Recode-V"
 
 * Define the country names (in globals) in by Recode
 global DHScountries_Recode_V "Congorep2005"
-
+//global DHScountries_Recode_V "Albania2008"
 
 foreach name in $DHScountries_Recode_V{	
 

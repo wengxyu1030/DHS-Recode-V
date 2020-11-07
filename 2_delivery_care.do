@@ -42,11 +42,10 @@ order *,sequential  //make sure variables are in order.
 	replace c_facdel = . if mi(m15) | m15 == 99 | mi(m15_lab)
 
 	*c_earlybreast: child breastfed within 1 hours of birth of births in last 2 years
-	gen c_earlybreast = .
-	
-	replace c_earlybreast = 0 if m4 != .    //  based on Last born children who were ever breastfed
-	replace c_earlybreast = 1 if inlist(m34,0,100)
-	replace c_earlybreast = . if inlist(m34,199,299)
+    gen c_earlybreast = 0
+    replace c_earlybreast = 1 if inlist(m34,0, 100)
+	replace c_earlybreast = . if inlist(m34,199, 999)
+	replace c_earlybreast = . if m34 ==. & m4 != 94
 	
     *c_skin2skin: child placed on mother's bare skin immediately after birth of births in last 2 years
 	capture confirm variable m77
