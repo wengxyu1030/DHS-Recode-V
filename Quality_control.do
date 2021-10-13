@@ -5,6 +5,23 @@
 for example the hiv data in DHS and adult indicators in HEFPI,
 could be adjusted later */
 
+/* Note: run for DHS.dta and replace, to allign with HEFPI 
+use "${SOURCE}/external/DHS.dta", clear
+replace surveyid = "DO2007DHS" if surveyid == "DR2007DHS"
+replace surveyid = "HT2005DHS" if surveyid == "HT2006DHS"
+replace surveyid = "IN2005DHS" if surveyid == "IA2006DHS"
+replace surveyid = "MG2008DHS" if surveyid == "MD2008DHS"
+replace surveyid = "LR2006DHS" if surveyid == "LR2007DHS"
+replace surveyid = "NA2006DHS" if surveyid == "NM2006DHS"
+replace surveyid = "NE2006DHS" if surveyid == "NI2006DHS"
+replace surveyid = "TZ2009DHS" if surveyid == "TZ2010DHS"
+replace surveyid = "CO2009DHS" if surveyid == "CO2010DHS"
+replace surveyid = "ML1995DHS" if surveyid == "ML1996DHS"
+
+save "C:\Users\Guan\OneDrive\DHS\MEASURE UHC DATA/RAW DATA/Recode V/external/DHS.dta", replace
+*/
+
+
 tempfile dhs hefpi
 
 ////////////////////////////////////////////////////////////////
@@ -14,9 +31,9 @@ tempfile dhs hefpi
 ****************************************************************
 *****Redefine the sample size to consistent with STATcompiler***
 ****************************************************************
-
 ***for variables generated from 1_antenatal_care 2_delivery_care 3_postnatal_care
 preserve
+
 	foreach var of var c_anc	c_anc_any	c_anc_bp	c_anc_bp_q	c_anc_bs	c_anc_bs_q ///
 	c_anc_ear	c_anc_ear_q	c_anc_eff	c_anc_eff_q	c_anc_eff2	c_anc_eff2_q ///
 	c_anc_eff3	c_anc_eff3_q	c_anc_ir	c_anc_ir_q	c_anc_ski	c_anc_ski_q ///
@@ -29,21 +46,31 @@ preserve
 	replace c_earlybreast = . if !(inrange(hm_age_mon,0,23)& bidx==1)
 
 	foreach var of var c_sba c_sba_eff1	c_sba_eff1_q	c_sba_eff2 ///
-	c_sba_eff2_q	c_sba_q	{
+	c_sba_eff2_q	c_sba_q	 c_caesarean c_facdel {
 	replace `var' = . if !(inrange(hm_age_mon,0,59) & hm_live ==1)
 	}
 
-	foreach var of var c_caesarean c_facdel{
-	replace `var' = . if !(inrange(hm_age_mon,0,59))
+***for variables generated from 4_sexual_health 5_woman_anthropometrics
+	foreach var of var w_CPR w_unmet_fp	w_need_fp w_metany_fp	w_metmod_fp w_metany_fp_q  w_bmi_1549 w_height_1549 w_obese_1549 w_overweight_1549 {
+	replace `var'=. if hm_age_yrs<15 | (hm_age_yrs>49 & hm_age_yrs!=.)
 	}
-
+	
 	
 ***for variables generated from 7_child_vaccination
-	foreach var of var c_bcg c_dpt1 c_dpt2 c_dpt3 c_fullimm c_measles ///
-	c_polio1 c_polio2 c_polio3{
-    replace `var' = . if !inrange(hm_age_mon,12,23)
-    }
-
+	if ~inlist(name,"Azerbaijan2006","Albania2008","Bolivia2008","DominicanRepublic2007","Guyana2009") & ~inlist(name,"Peru2004","Peru2007","Peru2009","Peru2010","Peru2011","Peru2012") {
+		foreach var of var c_bcg c_dpt1 c_dpt2 c_dpt3 c_fullimm c_measles ///
+		c_polio1 c_polio2 c_polio3{
+		replace `var' = . if !inrange(hm_age_mon,12,23)
+		}
+	}
+	
+	if inlist(name,"Azerbaijan2006","Albania2008","Bolivia2008","DominicanRepublic2007","Guyana2009") | inlist(name,"Peru2004","Peru2007","Peru2009","Peru2010","Peru2011","Peru2012"){
+		foreach var of var c_bcg c_dpt1 c_dpt2 c_dpt3 c_fullimm c_measles ///
+		c_polio1 c_polio2 c_polio3{
+		replace `var' = . if !inrange(hm_age_mon,18,29)
+		}
+	}
+	
 ***for variables generated from 8_child_illness	
 	foreach var of var c_ari2 c_diarrhea 	c_diarrhea_hmf	c_diarrhea_medfor	c_diarrhea_mof	c_diarrhea_pro	c_diarrheaact ///
 	c_diarrheaact_q	c_fever	c_fevertreat	c_illness	c_illtreat	c_sevdiarrhea	c_sevdiarrheatreat ///
@@ -59,10 +86,10 @@ preserve
 ***keep the relevant variables
 
 keep surveyid hvidx hv001 hv002 mor_ali ant_sampleweight w_sampleweight hh_sampleweight ///
-c_anc c_anc_bp	c_anc_bs	c_anc_ir	c_anc_ski c_anc_tet	c_anc_ur c_anc_ear	c_caesarean	c_earlybreast	c_sba  ///
+c_anc c_anc_bp_q	c_anc_bs_q	c_anc_ir	c_anc_ski c_anc_tet	c_anc_ur_q c_anc_ear	c_caesarean	c_earlybreast	c_sba  ///
 w_CPR	w_unmet_fp	w_need_fp w_metany_fp	w_metmod_fp	w_bmi_1549	w_obese_1549	w_overweight_1549 ///
 c_bcg	c_dpt1	c_dpt2	c_dpt3	c_fullimm	c_measles	c_polio1	c_polio2	c_polio3		///
-c_ari2 c_diarrhea 	c_diarrhea_hmf	c_diarrhea_mof c_diarrhea_pro	c_fever	c_treatdiarrhea c_treatARI2	c_underweight	c_stunted	c_ITN
+c_ari2 c_diarrhea 	c_diarrhea_hmf	c_diarrhea_mof c_fever	c_treatdiarrhea c_treatARI2	c_underweight	c_stunted	c_ITN
 
 
 
@@ -73,20 +100,20 @@ c_ari2 c_diarrhea 	c_diarrhea_hmf	c_diarrhea_mof c_diarrhea_pro	c_fever	c_treatd
 
 gen ispreferred = "1"   //there are dif. definition for same indicator in DHS data. 
 
-*indicators calculate using ant_samplewieght (child sample weight = women sample weight)
-foreach var of var c_anc c_anc_bp	c_anc_bs c_anc_ear c_anc_ir c_anc_ski c_anc_tet c_anc_ur c_caesarean c_earlybreast c_sba  ///
+*indicators calculate using w_sampleweight (child sample weight = women sample weight)
+foreach var of var c_anc c_anc_bp_q	c_anc_bs_q c_anc_ear c_anc_ir c_anc_ski c_anc_tet c_anc_ur_q c_caesarean c_earlybreast c_sba  ///
 c_bcg	c_dpt1	c_dpt2	c_dpt3	c_fullimm	c_measles	c_polio1	c_polio2	c_polio3		///
-c_ari2 c_diarrhea 	c_diarrhea_hmf	c_diarrhea_mof	c_fever c_diarrhea_pro c_treatARI2 c_treatdiarrhea  {
+c_ari2 c_diarrhea 	c_diarrhea_hmf	c_diarrhea_mof	c_fever c_treatARI2 c_treatdiarrhea  {
 egen value_my`var' = wtmean(`var'), weight(w_sampleweight)
 }  
 
-*indicators calculate using ant_samplewieght (women sample weight)
+*indicators calculate using w_sampleweight (women sample weight)
 foreach var of var w_CPR w_need_fp w_unmet_fp w_metany_fp w_metmod_fp w_bmi_1549 w_obese_1549 w_overweight_1549 {
 egen value_my`var' = wtmean(`var'), weight(w_sampleweight)
 }  
 
 *indicators calculate using household sample weight
-foreach var of var c_ITN {    
+foreach var of var c_ITN {
 egen value_my`var' = wtmean(`var'), weight(hh_sampleweight)
 }
 
@@ -95,11 +122,10 @@ foreach var of var c_underweight c_stunted{
 egen value_my`var' = wtmean(`var'), weight(ant_sampleweight)
 }
 
-
 keep surveyid ispreferred value*
 keep if _n == 1
 reshape long value_my,i(surveyid ispreferred)j(varname_my) string
-replace value_my = value_my*100
+replace value_my = value_my*100 if varname_my != "w_bmi_1549"
 
 merge 1:1 surveyid varname_my ispreferred using "${SOURCE}/external/DHS"
 keep if _merge == 3  //for _merge == 1, missing data to generate the indicator.
@@ -144,16 +170,20 @@ The bidx is nt used in the hefpi indicator caluclation
 	}
 	
 	***for women, reference population differs.
-    if inlist(name,"Armenia2010"){
+
     replace w_papsmear=. if hm_age_yrs<20|hm_age_yrs>49
-	replace w_mammogram=. if hm_age_yrs<40|hm_age_yrs>49
-	}	
+	replace w_mammogram=. if  hm_age_yrs<20|hm_age_yrs>49
 	
+
+***for variables generated from 4_sexual_health 5_woman_anthropometrics
+	foreach var of var w_CPR w_unmet_fp	w_need_fp w_metany_fp	w_metmod_fp w_metany_fp_q  w_bmi_1549 w_height_1549 w_obese_1549 w_overweight_1549 {
+	replace `var'=. if hm_age_yrs<15 | (hm_age_yrs>49 & hm_age_yrs!=.)
+	}
 	
 ***for variables generated from 7_child_vaccination
 	foreach var of var c_bcg c_dpt1 c_dpt2 c_dpt3 c_fullimm c_measles ///
 	c_polio1 c_polio2 c_polio3{
-    replace `var' = . if !inrange(hm_age_mon,15,23)
+    replace `var' = . if !inrange(hm_age_mon,12,23)
     }
 
 ***for variables generated from 8_child_illness	
@@ -183,7 +213,7 @@ The bidx is nt used in the hefpi indicator caluclation
 *********************************
 *indicators calculate using w_samplewieght (women sample weight)
 foreach var of var w_CPR w_bmi_1549 w_condom_conc w_height_1549 w_mammogram w_obese_1549 ///
-w_overweight_1549 w_papsmear w_unmet_fp c_anc	c_fullimm c_measles c_sba  c_treatARI2	///
+w_overweight_1549 w_papsmear w_unmet_fp c_anc	c_fullimm c_measles c_sba c_treatARI2	///
 c_treatdiarrhea	{
 egen value_my`var' = wtmean(`var'), weight(w_sampleweight)
 }   
@@ -198,11 +228,10 @@ foreach var of var c_underweight c_stunted {
 egen value_my`var' = wtmean(`var'),weight(ant_sampleweight)
 }
 
-
 keep surveyid value*
 keep if _n == 1
 reshape long value_my,i(surveyid)j(varname_my) string
-replace value_my = value_my*100
+replace value_my = value_my*100 if varname_my != "w_bmi_1549"
 
 merge 1:1 surveyid varname_my using "${SOURCE}/external/HEFPI_DHS"
 keep if _merge== 3

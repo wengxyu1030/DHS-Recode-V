@@ -2,7 +2,7 @@
 *** DHS MONITORING: V
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-version 15.1
+//version 15.1
 clear all
 set matsize 3956, permanent
 set more off, permanent
@@ -18,10 +18,11 @@ macro drop _all
 
 //NOTE FOR WINDOWS USERS : use "/" instead of "\" in your paths
 
-global root "C:/Users/wb500886/WBG/Sven Neelsen - World Bank/MEASURE UHC DATA"
+//global root "C:/Users/wb500886/WBG/Sven Neelsen - World Bank/MEASURE UHC DATA"
+global root "/Users/xianzhang/Dropbox/DHS"
 
 * Define path for data sources
-global SOURCE "${root}/RAW DATA/Recode V"
+global SOURCE "/Volumes/alan/DHS/RAW DATA/Recode V"
 
 * Define path for output data
 global OUT "${root}/STATA/DATA/SC/FINAL"
@@ -30,20 +31,29 @@ global OUT "${root}/STATA/DATA/SC/FINAL"
 global INTER "${root}/STATA/DATA/SC/INTER"
 
 * Define path for do-files
-global DO "C:\Users\wb500886\OneDrive - WBG\10_Health\UHC\GitHub\DHS-Recode-V"
+global DO "${root}/STATA/DO/SC/DHS/Recode V"
 
 * Define the country names (in globals) in by Recode
 do "${DO}/0_GLOBAL.do"
+global mc "/Users/xianzhang/Dropbox"
 
-
-foreach name in $DHScountries_Recode_V{	
+//$DHScountries_Recode_V
+// Albania2008 Azerbaijan2006 Bangladesh2007 Benin2006 Bolivia2008 Cambodia2005 Cambodia2010         
+// Colombia2010 Congorep2005 Congodr2007 DominicanRepublic2007 Egypt2008 Eswatini2006 Ghana2008            
+// Guyana2009 Haiti2005 Honduras2005 India2005 Indonesia2007 Jordan2007 Kenya2008            
+// Lesotho2009 Liberia2007 Madagascar2008 Malawi2010 Maldives2009 Mali2006 Namibia2006          
+// Nepal2006  Niger2006 Nigeria2008 Pakistan2006 Peru2004 Peru2007 Peru2009             
+// Peru2010 Peru2011 Peru2012 Philippines2008 SaoTomePrincipe2008 SierraLeone2008      
+// Tanzania2010 TimorLeste2009 Turkey2008 Uganda2006 Ukraine2007 Zambia2007 Zimbabwe2005         
+//Albania2008 Honduras2005 
+foreach name in $DHScountries_Recode_V   {	
 
 tempfile birth ind men hm hiv hh zsc iso 
 
 ************************************
 ***domains using zsc data***********
 ************************************
-capture confirm file "${SOURCE}/DHS-`name'/DHS-`name'zsc.dta"	//Note there are cases where dta is stored as DTA (capital)
+capture confirm file "${SOURCE}/DHS-`name'/DHS-`name'zsc.dta"	
 if _rc == 0 {
     use "${SOURCE}/DHS-`name'/DHS-`name'zsc.dta", clear
     if hwlevel == 2 {
@@ -89,7 +99,7 @@ if _rc == 0 {
  		gen c_underweight=1 if hc71<-2
  		replace c_underweight=0 if hc71>=-2 & hc71!=.
 	    
-		rename ant_sampleweight c_ant_sampleweight 
+		rename ant_sampleweight c_ant_sampleweight
 		keep c_* hhid hvidx hc70 hc71
 		save "${INTER}/zsc_hm.dta",replace
     }
@@ -115,7 +125,7 @@ use "${SOURCE}/DHS-`name'/DHS-`name'birth.dta", clear
 	capture confirm file "${INTER}/zsc_birth.dta"
 	if _rc == 0 {
 	merge 1:1 caseid bidx using "${INTER}/zsc_birth.dta",nogen
-	rename (hc70 hc71) (c_hc70 c_hc71)							   
+	rename (hc70 hc71) (c_hc70 c_hc71)
     }
 	
 *housekeeping for birthdata
@@ -171,24 +181,23 @@ use "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", clear
 gen name = "`name'"
     do "${DO}/13_adult"
     do "${DO}/14_demographics"
-	
+
 capture confirm file "${INTER}/zsc_hm.dta"
 	if _rc == 0 {
 	merge 1:1 hhid hvidx using "${INTER}/zsc_hm.dta",nogen
 	rename (hc70 hc71) (hm_hc70 hm_hc71)
 	}
-	
-    if _rc != 0 {
+	if _rc != 0 {
 	  capture confirm file "${INTER}/zsc_birth.dta"
 	    if _rc != 0 {
           do "${DO}/9_child_anthropometrics"  //if there's no zsc related file, then run 9_child_anthropometrics
 	      rename ant_sampleweight c_ant_sampleweight
 		}
     }	
-	
+
 gen c_placeholder = 1
-keep hv001 hv002 hvidx  ///
-a_* hm_* ln c_*
+keep hv001 hv002 hvidx ///
+c_* a_* hm_* ln *hc70 *hc71 // *hc70 *hc71 are correct for now, may need to be changed in some cases
 save `hm'
 
 capture confirm file "${SOURCE}/DHS-`name'/DHS-`name'hiv.dta"
@@ -200,7 +209,7 @@ capture confirm file "${SOURCE}/DHS-`name'/DHS-`name'hiv.dta"
     gen a_hiv = . 
     gen a_hiv_sampleweight = .
     }  
-keep a_hiv* hv001 hv002 hvidx
+keep a_hiv* hv001 hv002 hvidx 
 save `hiv'
 
 use `hm',clear
@@ -211,12 +220,59 @@ save `hm',replace
 ************************************
 *****domains using hh level data****
 ************************************
+gen name = "`name'"
+if !inlist(name,"Honduras2005","Peru2012"){
 use "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", clear
     rename (hv001 hv002 hvidx) (v001 v002 v003)
 
     merge 1:m v001 v002 v003 using "${SOURCE}/DHS-`name'/DHS-`name'birth.dta"
     rename (v001 v002 v003) (hv001 hv002 hvidx) 
     drop _merge
+	gen name = "`name'"
+}
+* For Peru2012 & Honduras2005, the hv002 lost 2-3 digits, fix this issue in main.do, 1.do,4.do,12.do & 13.do
+if inlist(name,"Peru2012"){
+	tempfile birthspec
+	use "${SOURCE}/DHS-`name'/DHS-`name'birth.dta",clear
+	drop v002
+	gen v002 = substr(caseid,5,5)
+	destring v002,replace
+	save `birthspec',replace
+	
+	use "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", clear
+	drop hv002
+	gen hv002 = substr(hhid,11,5)
+	destring hv002,replace
+	isid hv001 hv002 hvidx
+	order hhid hv000 hv001 hv002
+    rename (hv001 hv002 hvidx) (v001 v002 v003)
+
+    merge 1:m v001 v002 v003 using `birthspec'
+    rename (v001 v002 v003) (hv001 hv002 hvidx) 
+    drop _merge
+	gen name = "`name'"
+}
+if inlist(name,"Honduras2005"){
+	tempfile birthspec
+	use "${SOURCE}/DHS-`name'/DHS-`name'birth.dta",clear
+	drop v002
+	gen v002 = substr(caseid,10,3)
+	destring v002,replace
+	save `birthspec',replace
+	
+	use "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", clear
+	drop hv002
+	gen hv002 = substr(hhid,10,3)
+	destring hv002,replace
+	isid hv001 hv002 hvidx
+	order hhid hv000 hv001 hv002
+    rename (hv001 hv002 hvidx) (v001 v002 v003)
+
+    merge 1:m v001 v002 v003 using `birthspec'
+    rename (v001 v002 v003) (hv001 hv002 hvidx) 
+    drop _merge
+	gen name = "`name'"
+}
 
     do "${DO}/15_household"
 
@@ -229,21 +285,30 @@ save `hh'
 ************************************
 
 ***match with external iso data
-use "${SOURCE}/external/iso", clear 
+use "${SOURCE}/external/iso", clear
 keep country iso2c iso3c
+replace country = "Congodr"  if country == "Congo, the Democratic Republic of the"
+replace country = "DominicanRepublic"  if country == "Dominican Republic"
+replace country = "SierraLeone"  if country == "Sierra Leone"
+replace country = "Tanzania" if country == "Tanzania, United Republic of"
+replace country = "TimorLeste" if country == "Timor-Leste"
+replace country = "SaoTomePrincipe" if country == "Sao Tome and Principe"
 save `iso'
 
 ***merge all subset of microdata
 use `hm',clear
 
     merge 1:m hv001 hv002 hvidx using `birth',update              //missing update is zero, non missing conflict for all matched.(hvidx different) 
+
+	//bysort hv001 hv002: egen min = min(w_sampleweight)
+	//replace w_sampleweight = min if w_sampleweight ==.
     replace hm_headrel = 99 if _merge == 2
 	label define hm_headrel_lab 99 "dead/no longer in the household"
 	label values hm_headrel hm_headrel_lab
 	replace hm_live = 0 if _merge == 2 | inlist(hm_headrel,.,12,98)
 	drop _merge
     merge m:m hv001 hv002 hvidx using `ind',nogen update
-	merge m:m hv001 hv002       using `hh',nogen update
+	merge m:m  hv001 hv002       using `hh',nogen update
     
     tab hh_urban,mi  //check whether all hh member + dead child + child lives outside hh assinged hh info
 
@@ -258,7 +323,8 @@ rename (hm_hc70 hm_hc71 ) (hc70 hc71 )
 }
 
 rename c_ant_sampleweight ant_sampleweight
-drop c_placeholder													
+drop c_placeholder
+
 
 ***survey level data
     gen survey = "DHS-`name'"
@@ -272,15 +338,29 @@ drop c_placeholder
 
 *** Quality Control: Validate with DHS official data
 gen surveyid = iso2c+year+"DHS"
+
 gen name = "`name'"
-    
+* to match with HEFPI_DHS.dta surveyid (differ in year)
+	if inlist(name,"Colombia2010") {
+		replace surveyid = "CO2009DHS"
+	}
+	if inlist(name,"Eswatini2006") {
+		replace surveyid = "SZ2006DHS"
+	}
+	if inlist(name,"Liberia2007") {
+		replace surveyid = "LR2006DHS"
+	}
+	if inlist(name,"Tanzania2010") {
+		replace surveyid = "TZ2009DHS"
+	}
+
 preserve
 	do "${DO}/Quality_control"
 	save "${INTER}/quality_control-`name'",replace
 	cd "${INTER}"
 	do "${DO}/Quality_control_result"
 	save "${OUT}/quality_control",replace 
-    restore 
+restore 
 
 
 	
@@ -303,14 +383,14 @@ preserve
     }
 	
 	***for variables generated from 8_child_illness	
-	foreach var of var c_ari	c_diarrhea 	c_diarrhea_hmf	c_diarrhea_medfor	c_diarrhea_mof	c_diarrhea_pro	c_diarrheaact ///
+	foreach var of var c_ari c_ari2	c_diarrhea 	c_diarrhea_hmf	c_diarrhea_medfor	c_diarrhea_mof	c_diarrhea_pro	c_diarrheaact ///
 	c_diarrheaact_q	c_fever	c_fevertreat	c_illness	c_illtreat	c_sevdiarrhea	c_sevdiarrheatreat ///
 	c_sevdiarrheatreat_q	c_treatARI c_treatARI2	c_treatdiarrhea	c_diarrhea_med {
     replace `var' = . if !inrange(hm_age_mon,0,59)
     }
 	
 	***for vriables generated from 9_child_anthropometrics
-	foreach var of var c_underweight c_stunted	hc70 hc71 ant_sampleweight{
+	foreach var of var c_underweight c_stunted ant_sampleweight hc70 hc71 {
     replace `var' = . if !inrange(hm_age_mon,0,59)
     }
 	
@@ -342,7 +422,3 @@ preserve
 	
 save "${OUT}/DHS-`name'.dta", replace  
 }
-
-
-
-

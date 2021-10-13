@@ -17,7 +17,6 @@ the existance of the hiv data */
     replace a_hiv=1 if a_hiv_cat==1|a_hiv_cat==2|a_hiv_cat==3
     replace a_hiv=0 if a_hiv_cat==0
 	
-	
     *hiv_sampleweight Sample weight for hiv prevalence estimates
     gen a_hiv_sampleweight = hiv05/10e6
 	

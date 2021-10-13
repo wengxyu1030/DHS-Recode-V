@@ -16,7 +16,8 @@ global DHScountries_Recode_VII
  Angola2015        
  Armenia2015       
  Benin2017         
- Burundi2016       
+ Burundi2016   
+ Cameroon2018
  Colombia2015      
  Ethiopia2016      
  Guinea2018        
@@ -242,8 +243,8 @@ global DHScountries_Recode_III
  Chad1996                  
  Colombia1995              
  Comoros1996               
- Coted1998                 
- Coted1994                 
+ CotedIvoire1998                 
+ CotedIvoire1994                 
  DominicanRepublic1996     
  Egypt1995                 
  Guatemala1995             
