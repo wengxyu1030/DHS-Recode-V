@@ -18,11 +18,12 @@ macro drop _all
 
 //NOTE FOR WINDOWS USERS : use "/" instead of "\" in your paths
 
-//global root "C:/Users/wb500886/WBG/Sven Neelsen - World Bank/MEASURE UHC DATA"
-global root "/Users/xianzhang/Dropbox/DHS"
+* Define root depend on the stata user. 
+if "`c(username)'" == "xweng"     local pc = 1
+if `pc' == 1 global root "C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA"
 
 * Define path for data sources
-global SOURCE "/Volumes/alan/DHS/RAW DATA/Recode V"
+global SOURCE "${root}/RAW DATA/Recode V"
 
 * Define path for output data
 global OUT "${root}/STATA/DATA/SC/FINAL"
@@ -31,10 +32,11 @@ global OUT "${root}/STATA/DATA/SC/FINAL"
 global INTER "${root}/STATA/DATA/SC/INTER"
 
 * Define path for do-files
-global DO "${root}/STATA/DO/SC/DHS/Recode V"
+if `pc' != 0 global DO "${root}/STATA/DO/SC/DHS/DHS-Recode-V"
 
 * Define the country names (in globals) in by Recode
 do "${DO}/0_GLOBAL.do"
+
 global mc "/Users/xianzhang/Dropbox"
 
 //$DHScountries_Recode_V
@@ -46,7 +48,15 @@ global mc "/Users/xianzhang/Dropbox"
 // Peru2010 Peru2011 Peru2012 Philippines2008 SaoTomePrincipe2008 SierraLeone2008      
 // Tanzania2010 TimorLeste2009 Turkey2008 Uganda2006 Ukraine2007 Zambia2007 Zimbabwe2005         
 //Albania2008 Honduras2005 
-foreach name in $DHScountries_Recode_V   {	
+
+/*
+issue:
+Peru2012 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode    IV/DHS-Peru2012/DHS-Peru2012birth.dta not found
+Albania2008 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode V/DHS-Albania2008/DHS-Albania2008birth.dta not Stata format
+Honduras2005 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode V/DHS-Honduras2005/DHS-Honduras2005birth.dta not Stata format
+*/
+
+foreach name in $DHScountries_Recode_V {	
 
 tempfile birth ind men hm hiv hh zsc iso 
 
