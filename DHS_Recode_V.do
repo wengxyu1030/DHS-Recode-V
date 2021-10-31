@@ -20,19 +20,25 @@ macro drop _all
 
 * Define root depend on the stata user. 
 if "`c(username)'" == "xweng"     local pc = 1
+	if "`c(username)'" == "robinwang"     local pc = 4
+
 if `pc' == 1 global root "C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA"
+	if `pc' == 4 global root "/Users/robinwang/Documents/MEASURE UHC DATA"
 
 * Define path for data sources
 global SOURCE "${root}/RAW DATA/Recode V"
 
 * Define path for output data
 global OUT "${root}/STATA/DATA/SC/FINAL"
+	if `pc' == 4 global OUT "${root}/STATA/DATA/SC/FINAL"
 
 * Define path for INTERMEDIATE
 global INTER "${root}/STATA/DATA/SC/INTER"
+	if `pc' == 4 global INTER "${root}/STATA/DATA/SC/INTER"
 
 * Define path for do-files
 if `pc' != 0 global DO "${root}/STATA/DO/SC/DHS/DHS-Recode-V"
+	if `pc' == 4 global DO "/Users/robinwang/Documents/MEASURE UHC DATA/DHS-Recode-V"
 
 * Define the country names (in globals) in by Recode
 do "${DO}/0_GLOBAL.do"
@@ -52,8 +58,14 @@ global mc "/Users/xianzhang/Dropbox"
 /*
 issue:
 Peru2012 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode    IV/DHS-Peru2012/DHS-Peru2012birth.dta not found
+-  AW reports issue rerunning, DW team resolves. Successful, no changes.
+
 Albania2008 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode V/DHS-Albania2008/DHS-Albania2008birth.dta not Stata format
+-  AW reports issue rerunning, DW team resolves. Successful, no changes.
+
 Honduras2005 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode V/DHS-Honduras2005/DHS-Honduras2005birth.dta not Stata format
+-  AW reports issue rerunning, DW team resolves. Successful, no changes.
+
 */
 
 foreach name in $DHScountries_Recode_V {	
