@@ -53,8 +53,8 @@ global mc "/Users/xianzhang/Dropbox"
 // Nepal2006  Niger2006 Nigeria2008 Pakistan2006 Peru2004 Peru2007 Peru2009             
 // Peru2010 Peru2011 Peru2012 Philippines2008 SaoTomePrincipe2008 SierraLeone2008      
 // Tanzania2010 TimorLeste2009 Turkey2008 Uganda2006 Ukraine2007 Zambia2007 Zimbabwe2005         
-//Albania2008 Honduras2005 
 
+//Albania2008 Honduras2005 
 /*
 issue:
 Peru2012 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode    IV/DHS-Peru2012/DHS-Peru2012birth.dta not found
@@ -65,7 +65,6 @@ Albania2008 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode 
 
 Honduras2005 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode V/DHS-Honduras2005/DHS-Honduras2005birth.dta not Stata format
 -  AW reports issue rerunning, DW team resolves. Successful, no changes.
-
 */
 global DHScountries_Recode_V "Tanzania2010"
 foreach name in $DHScountries_Recode_V {	
