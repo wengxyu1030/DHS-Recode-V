@@ -34,7 +34,7 @@ if inlist(name,"DominicanRepublic2007") {
 	replace w_mammogram = 1 if inlist(s1008b,1,3)
 	replace w_mammogram = 0 if inlist(s1008b,4,2)
     tab v012 if w_mammogram!=. /*DHS sample is women aged 15-49*/
-    replace w_mammogram=. if wage<40|wage>49
+    replace w_mammogram=. if v012<40|v012>49 /*DW Nov 2021: variable wage not available for DR2007*/
 }
 
 if inlist(name,"Colombia2010") {
