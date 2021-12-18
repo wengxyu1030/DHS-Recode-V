@@ -66,7 +66,13 @@ Albania2008 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode 
 Honduras2005 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode V/DHS-Honduras2005/DHS-Honduras2005birth.dta not Stata format
 -  AW reports issue rerunning, DW team resolves. Successful, no changes.
 */
+<<<<<<< Updated upstream
 global DHScountries_Recode_V "Tanzania2010"
+=======
+* Congodr2007
+* 
+global DHScountries_Recode_V "India2005"
+>>>>>>> Stashed changes
 foreach name in $DHScountries_Recode_V {	
 
 tempfile birth ind men hm hiv hh zsc iso 
