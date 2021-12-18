@@ -66,13 +66,8 @@ Albania2008 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode 
 Honduras2005 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode V/DHS-Honduras2005/DHS-Honduras2005birth.dta not Stata format
 -  AW reports issue rerunning, DW team resolves. Successful, no changes.
 */
-<<<<<<< Updated upstream
-global DHScountries_Recode_V "Tanzania2010"
-=======
-* Congodr2007
-* 
+
 global DHScountries_Recode_V "India2005"
->>>>>>> Stashed changes
 foreach name in $DHScountries_Recode_V {	
 
 tempfile birth ind men hm hiv hh zsc iso 
@@ -89,6 +84,9 @@ if _rc == 0 {
 		merge 1:1 caseid bidx using "${SOURCE}/DHS-`name'/DHS-`name'birth.dta"
     	gen ant_sampleweight = v005/10e6  
     	drop if _!=3
+
+		*mother's line number
+		gen c_motherln = hv112		
 		
   		foreach var in hc70 hc71 hc72 {
   	 	replace `var'=. if `var'>900
@@ -104,7 +102,24 @@ if _rc == 0 {
  		replace c_underweight=0 if hc71>=-2 & hc71!=.
  		gen c_wasted=1 if hc72<-2
  		replace c_wasted=0 if hc72>=-2 & hc72!=.
-		
+		gen c_stunted_sev=1 if hc70<-3
+		replace c_stunted_sev=0 if hc70>=-3 & hc70!=.
+		gen c_underweight_sev=1 if hc71<-3
+		replace c_underweight_sev=0 if hc71>=-3 & hc71!=.
+		gen c_wasted_sev=1 if hc72<-3
+		replace c_wasted_sev=0 if hc72>=-3 & hc72!=.
+*c_stu_was: Both stunted and wasted
+		gen c_stu_was = (c_stunted == 1 & c_wasted ==1) 
+		replace c_stu_was = . if c_stunted == . | c_wasted == . 
+		label define l_stu_was 1 "Both stunted and wasted"
+		label values c_stu_was l_stu_was		
+
+*c_stu_was_sev: Both severely stunted and severely wasted		
+		gen c_stu_was_sev = (c_stunted_sev == 1 & c_wasted_sev == 1)
+		replace c_stu_was_sev = . if c_stunted_sev == . | c_wasted_sev == . 
+		label define l_stu_was_sev 1 "Both severely stunted and severely wasted"
+		label values c_stu_was_sev l_stu_was_sev
+			
 		rename ant_sampleweight c_ant_sampleweight
 		keep c_* caseid bidx hwlevel hc70 hc71 hc72
 		save "${INTER}/zsc_birth.dta",replace
@@ -113,12 +128,14 @@ if _rc == 0 {
  	if hwlevel == 1 {
  		gen hhid = hwhhid
  		gen hvidx = hwline
- 		merge 1:1 hhid hvidx using "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", keepusing(hv103 hv001 hv002 hv005)
+ 		merge 1:1 hhid hvidx using "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", keepusing(hv103 hv001 hv002 hv005 hv112)
  		drop if hv103==0
  		gen ant_sampleweight = hv005/10e6
  		drop if _!=3
 		gen ant_hm = 1
-		
+
+		*mother's line number
+		gen c_motherln = hv112		
   		foreach var in hc70 hc71 hc72 {
   	 	replace `var'=. if `var'>900
   	 	replace `var'=`var'/100
@@ -132,7 +149,24 @@ if _rc == 0 {
  		replace c_underweight=0 if hc71>=-2 & hc71!=.
  		gen c_wasted=1 if hc72<-2
  		replace c_wasted=0 if hc72>=-2 & hc72!=.
-	    
+		gen c_stunted_sev=1 if hc70<-3
+		replace c_stunted_sev=0 if hc70>=-3 & hc70!=.
+		gen c_underweight_sev=1 if hc71<-3
+		replace c_underweight_sev=0 if hc71>=-3 & hc71!=.
+		gen c_wasted_sev=1 if hc72<-3
+		replace c_wasted_sev=0 if hc72>=-3 & hc72!=.				
+*c_stu_was: Both stunted and wasted
+		gen c_stu_was = (c_stunted == 1 & c_wasted ==1) 
+		replace c_stu_was = . if c_stunted == . | c_wasted == . 
+		label define l_stu_was 1 "Both stunted and wasted"
+		label values c_stu_was l_stu_was		
+
+*c_stu_was_sev: Both severely stunted and severely wasted		
+		gen c_stu_was_sev = (c_stunted_sev == 1 & c_wasted_sev == 1)
+		replace c_stu_was_sev = . if c_stunted_sev == . | c_wasted_sev == . 
+		label define l_stu_was_sev 1 "Both severely stunted and severely wasted"
+		label values c_stu_was_sev l_stu_was_sev
+		    
 		rename ant_sampleweight c_ant_sampleweight
 		keep c_* hhid hvidx hc70 hc71 hc72
 		save "${INTER}/zsc_hm.dta",replace
@@ -421,7 +455,7 @@ restore
     }
 	
 	***for vriables generated from 9_child_anthropometrics
-	foreach var of var c_underweight c_stunted ant_sampleweight hc70 hc71 hc72 {
+	foreach var of var c_underweight c_underweight_sev c_stunted c_stunted_sev c_wasted c_wasted_sev c_stu_was c_stu_was_sev ant_sampleweight hc70 hc71 hc72 {
     replace `var' = . if !inrange(hm_age_mon,0,59)
     }
 	
