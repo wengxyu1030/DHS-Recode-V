@@ -66,8 +66,8 @@ Albania2008 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode 
 Honduras2005 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode V/DHS-Honduras2005/DHS-Honduras2005birth.dta not Stata format
 -  AW reports issue rerunning, DW team resolves. Successful, no changes.
 */
+global DHScountries_Recode_V "Congodr2007"
 
-global DHScountries_Recode_V "India2005"
 foreach name in $DHScountries_Recode_V {	
 
 tempfile birth ind men hm hiv hh zsc iso 
@@ -215,6 +215,10 @@ use "${SOURCE}/DHS-`name'/DHS-`name'birth.dta", clear
     *hm_doi	date of interview (cmc)
     gen hm_doi = v008
 
+	*FEB 2022 DW
+	gen w_married=(v502==1)
+	replace w_married=. if v502==.
+	
 rename (v001 v002 b16) (hv001 hv002 hvidx)
 keep hv001 hv002 hvidx bidx c_* mor_* w_* hm_* 
 save `birth'
