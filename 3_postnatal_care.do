@@ -12,19 +12,21 @@
 		local t=`s'-2
 		gen `var'_skill =0 if !mi(`var')|!inlist(m`t',0,1)
 
-		decode `var', gen(`var'_lab)
-		replace `var'_lab = lower(`var'_lab )
-		replace  `var'_skill= 1 if ///
-		(regexm(`var'_lab,"doctor|nurse|midwife|mifwife|aide soignante|assistante accoucheuse|clinical officer|pediatriacian|mch aide|midwile|matrone/|trained|rescuer|auxiliary birth attendant|physician assistant|professional|ferdsher|feldshare|lady health worker|skilled|community health care proVIder|birth attendant|hospital/health center worker|hew|auxiliary|icds|feldsher|mch|vhw|health team|health personnel|gynecolog(ist|y)|obstetrician|internist|pediatrician|family welfare visitor|medical assistant|health assistant|matron|general practitioner|health officer|extension|ob-gy") ///	
-		&!regexm(`var'_lab,"na^|-na|traditional birth attendant|traditional midwife|vhw|untrained|unqualified|Matrone |empirical midwife|box|other|obstetrician|health assistant|health fieldworker|health worker") | (regexm(`var'_lab,"trained traditional|traditional birth attendant ") & !regexm(`var'_lab,"untrained|not train")) | regexm(`var'_lab,"matron with |gynecology/ obstetrician") | (regexm(`var'_lab,"doctor|health personnel|health professional") & regexm(`var'_lab,"other")))
-		replace `var'_skill = . if mi(`var') | `var' == 99 | mi(`var'_lab) |`var' == 98
+		cap decode `var', gen(`var'_lab)
+		if !_rc {
+			replace `var'_lab = lower(`var'_lab )
+			replace  `var'_skill= 1 if ///
+			(regexm(`var'_lab,"doctor|nurse|midwife|mifwife|aide soignante|assistante accoucheuse|clinical officer|pediatriacian|mch aide|midwile|matrone/|trained|rescuer|auxiliary birth attendant|physician assistant|professional|ferdsher|feldshare|lady health worker|skilled|community health care proVIder|birth attendant|hospital/health center worker|hew|auxiliary|icds|feldsher|mch|vhw|health team|health personnel|gynecolog(ist|y)|obstetrician|internist|pediatrician|family welfare visitor|medical assistant|health assistant|matron|general practitioner|health officer|extension|ob-gy") ///	
+			&!regexm(`var'_lab,"na^|-na|traditional birth attendant|traditional midwife|vhw|untrained|unqualified|Matrone |empirical midwife|box|other|obstetrician|health assistant|health fieldworker|health worker") | (regexm(`var'_lab,"trained traditional|traditional birth attendant ") & !regexm(`var'_lab,"untrained|not train")) | regexm(`var'_lab,"matron with |gynecology/ obstetrician") | (regexm(`var'_lab,"doctor|health personnel|health professional") & regexm(`var'_lab,"other")))
+			replace `var'_skill = . if mi(`var') | `var' == 99 | mi(`var'_lab) |`var' == 98
+		}
 	}
 
 	/* consider as skilled if contain words in the first group but don't contain any words in the second group */
 	// survey that child pnc is collected only if mother delivered at home or other facility
 	gen c_pnc_any = .
 	// survey that child pnc is collected from the whole sample 
-	if inlist(name,"Bolivia2008","Cambodia2010","Egypt2008","Lesotho2009","Turkey2008") | inlist(name, "Peru2004","Peru2007","Peru2009","Peru20010","Peru2011","Peru20012"){	
+	if inlist(name,"Bolivia2008","Cambodia2010","Egypt2008","Lesotho2009","Turkey2008") | inlist(name, "Peru2004","Peru2007","Peru2009","Peru20010","Peru2011","Peru2012"){	
 		replace c_pnc_any = 0 if m62 != . | m66 != . | m70 != .
 		replace c_pnc_any = 1 if ((m63 <= 242 | inrange(m63,301,306) | m63 == 299 ) & m64_skill == 1 ) | ((m67 <= 242 | inrange(m67,301,306) | m67 == 299 ) & m68_skill == 1 ) | ((m71 <= 242 | inrange(m71,301,306) | m71 == 299 ) & m72_skill == 1 )
 		replace c_pnc_any = . if (((inlist(m63,399,995,998,999)|m64_skill ==.) & m62 !=0) & ((inlist(m67,399,995,998,999)|m68_skill ==.) & m66 !=0)) | ((inlist(m71,399,995,998,999)|m72_skill ==.) & m70 !=0) | inlist(m62,8,9)|inlist(m66,8,9)|inlist(m70,8,9)
@@ -39,7 +41,7 @@
 		replace c_pnc_eff = . if ((inlist(m67,.,299,399,995,998,999)|m68_skill ==.) & m66 !=0) | ((inlist(m71,.,299,399,995,998,999)|m72_skill ==.) & m70 !=0)| inlist(m62,8,9) | inlist(m66,8,9) | inlist(m70,8,9)
 	*/
 	// survey that child pnc is collected from the whole sample 
-	if inlist(name,"Bolivia2008","Cambodia2010","Egypt2008","Lesotho2009","Turkey2008") | inlist(name, "Peru2004","Peru2007","Peru2009","Peru20010","Peru2011","Peru20012"){	
+	if inlist(name,"Bolivia2008","Cambodia2010","Egypt2008","Lesotho2009","Turkey2008") | inlist(name, "Peru2004","Peru2007","Peru2009","Peru20010","Peru2011","Peru2012"){	
 	drop c_pnc_eff
 	replace m62=0 if  m62 ==. & inlist(m15,11,12,96)       // for mother deliver at home/other facility, their pnc info. are record in m66-m68, and m62 m63 m64 are skipped. recode m62=0 if mother deliver at home
 	replace m66=0 if  m66 ==. & !inlist(m15,11,12,96,98,99,.) // vice versa

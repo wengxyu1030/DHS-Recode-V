@@ -27,6 +27,7 @@ if `pc' == 1 global root "C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA"
 
 * Define path for data sources
 global SOURCE "${root}/RAW DATA/Recode V"
+	if `pc' == 4 global SOURCE "/Volumes/Seagate Portable Drive 1/HEFPI DATA/RAW DATA/DHS/DHS V"
 
 * Define path for output data
 global OUT "${root}/STATA/DATA/SC/FINAL"
@@ -43,8 +44,6 @@ if `pc' != 0 global DO "${root}/STATA/DO/SC/DHS/DHS-Recode-V"
 * Define the country names (in globals) in by Recode
 do "${DO}/0_GLOBAL.do"
 
-global mc "/Users/xianzhang/Dropbox"
-
 //$DHScountries_Recode_V
 // Albania2008 Azerbaijan2006 Bangladesh2007 Benin2006 Bolivia2008 Cambodia2005 Cambodia2010         
 // Colombia2010 Congorep2005 Congodr2007 DominicanRepublic2007 Egypt2008 Eswatini2006 Ghana2008            
@@ -54,19 +53,7 @@ global mc "/Users/xianzhang/Dropbox"
 // Peru2010 Peru2011 Peru2012 Philippines2008 SaoTomePrincipe2008 SierraLeone2008      
 // Tanzania2010 TimorLeste2009 Turkey2008 Uganda2006 Ukraine2007 Zambia2007 Zimbabwe2005         
 
-//Albania2008 Honduras2005 
-/*
-issue:
-Peru2012 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode    IV/DHS-Peru2012/DHS-Peru2012birth.dta not found
--  AW reports issue rerunning, DW team resolves. Successful, no changes.
-
-Albania2008 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode V/DHS-Albania2008/DHS-Albania2008birth.dta not Stata format
--  AW reports issue rerunning, DW team resolves. Successful, no changes.
-
-Honduras2005 file C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA/RAW DATA/Recode V/DHS-Honduras2005/DHS-Honduras2005birth.dta not Stata format
--  AW reports issue rerunning, DW team resolves. Successful, no changes.
-*/
-global DHScountries_Recode_V "Congodr2007"
+global DHScountries_Recode_V "Albania2008 Azerbaijan2006 Bangladesh2007 Benin2006 Bolivia2008 Cambodia2005 Cambodia2010 Colombia2010 Congorep2005 Congodr2007 DominicanRepublic2007 Egypt2008 Eswatini2006 Ghana2008 Guyana2009 Haiti2005 Honduras2005 India2005 Indonesia2007 Jordan2007 Kenya2008 Lesotho2009 Liberia2007 Madagascar2008 Malawi2010 Maldives2009 Mali2006 Namibia2006 Nepal2006  Niger2006 Nigeria2008 Pakistan2006 Peru2004 Peru2007 Peru2009 Peru2010 Peru2011 Peru2012 Philippines2008 SaoTomePrincipe2008 SierraLeone2008 Tanzania2010 TimorLeste2009 Turkey2008 Uganda2006 Ukraine2007 Zambia2007 Zimbabwe2005"
 
 foreach name in $DHScountries_Recode_V {	
 
@@ -441,7 +428,8 @@ restore
 	c_anc_eff3	c_anc_eff3_q	c_anc_ir	c_anc_ir_q	c_anc_ski	c_anc_ski_q ///
 	c_anc_tet	c_anc_tet_q	c_anc_ur	c_anc_ur_q	c_caesarean	c_earlybreast ///
 	c_facdel	c_hospdel	c_sba	c_sba_eff1	c_sba_eff1_q	c_sba_eff2 ///
-	c_sba_eff2_q	c_sba_q	c_skin2skin	c_pnc_any	c_pnc_eff	c_pnc_eff_q c_pnc_eff2	c_pnc_eff2_q {
+	c_sba_eff2_q	c_sba_q	c_skin2skin	c_pnc_any	c_pnc_eff	c_pnc_eff_q c_pnc_eff2 ///
+	c_pnc_eff2_q c_anc_public c_anc_hosp {
     replace `var' = . if !(inrange(hm_age_mon,0,23)& bidx ==1)
     }
 	
