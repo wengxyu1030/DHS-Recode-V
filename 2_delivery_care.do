@@ -49,6 +49,7 @@ order *,sequential  //make sure variables are in order.
 	!regexm(m15_lab,"home|other private|other$|pharmacy|non medical|private nurse|religious|abroad|other public|tba")
 	replace c_facdel = . if mi(m15) | inlist(m15,98,99) | mi(m15_lab)
 
+	
 	*c_earlybreast: child breastfed within 1 hours of birth of births in last 2 years
 	gen c_earlybreast = 0
 	

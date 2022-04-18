@@ -31,14 +31,26 @@ order *,sequential
 	gen c_anc_ear_q = c_anc_ear if c_anc_any==1
 	
 	*anc_skill: Categories as skilled: doctor, nurse, midwife, auxiliary nurse/midwife...
-	foreach var of varlist m2a-m2m{
-	local lab: variable label `var' 
-    replace `var' = . if ///
-		!regexm("`lab'","trained") & ///
-		(!regexm("`lab'","doctor|nurse|Nurse|Assistante Accoucheuse|midwife|mifwife|aide soignante|assistante accoucheuse|(sanitario)|(ma/sacmo)|gynaecologist|medex|MCH AIDE|nursing aide|clinical officer|(feldsher/other)|(Technical Nurse)|mch aide|auxiliary birth attendant|physician assistant|professional|ferdsher|feldshare|skilled|community health care provider|birth attendant|hospital/health center worker|hew|auxiliary|icds|feldsher|mch|vhw|village health team|health personnel|gynecolog(ist|y)|internist|pediatrician|family welfare visitor|medical assistant|health assistant|ma/sacmo|health officer|ob-gy") ///
-		|regexm("`lab'","na^|-na|traditional birth attendant|untrained|health assistant|medical assistant/icp|obgyn|anganwadi/icds worker|family welfare visitor|mch worker|unquallified|unqualified|empirical midwife|trad.| other|vhw")) &  !(regexm("`lab'","doctor")&regexm("`lab'","other")) | regexm("`lab'","untrained") 		
-	replace `var' = . if !inlist(`var',0,1)
+	
+
+
+	if !inlist(name,"Congorep2005") {
+		foreach var of varlist m2a-m2m{
+			local lab: variable label `var' 	
+			replace `var' = . if ///
+				!regexm("`lab'","trained") & ///
+				(!regexm("`lab'","doctor|nurse|Nurse|Assistante Accoucheuse|midwife|mifwife|aide soignante|assistante accoucheuse|(sanitario)|(ma/sacmo)|gynaecologist|medex|MCH AIDE|nursing aide|clinical officer|(feldsher/other)|(Technical Nurse)|mch aide|auxiliary birth attendant|physician assistant|professional|ferdsher|feldshare|skilled|community health care provider|birth attendant|hospital/health center worker|hew|auxiliary|icds|feldsher|mch|vhw|village health team|health personnel|gynecolog(ist|y)|internist|pediatrician|family welfare visitor|medical assistant|health assistant|ma/sacmo|health officer|ob-gy") ///
+				|regexm("`lab'","na^|-na|traditional birth attendant|untrained|health assistant|medical assistant/icp|obgyn|anganwadi/icds worker|family welfare visitor|mch worker|unquallified|unqualified|empirical midwife|trad.| other|vhw")) &  !(regexm("`lab'","doctor")&regexm("`lab'","other")) | regexm("`lab'","untrained")
+			replace `var' = . if !inlist(`var',0,1)
+		 }
 	 }
+	 /* change m2d label, the na was wrongly placed resulting in big shifts in eff rates*/	
+	if inlist(name,"Congorep2005") {
+		foreach var of varlist m2a-m2m{
+			replace `var' = . if inlist("`var'","m2g","m2k","m2l","m2m")
+			replace `var' = . if !inlist(`var',0,1)
+		 }
+	 }	 
 
 	/* do consider as skilled if contain words in 
 	   the first group but don't contain any words in the second group */
@@ -173,9 +185,9 @@ order *,sequential
 			}
 		}
 
-	foreach var of varlist m57e-m57l {
-		capture confirm variable `var'
-		if !_rc {
+	capture confirm variable m57e
+	if !_rc {
+		foreach var of varlist m57e-m57l {
 			replace c_anc_public = 1 if `var'==1	
 		}
 	}
