@@ -27,7 +27,7 @@ if `pc' == 1 global root "C:/Users/XWeng/OneDrive - WBG/MEASURE UHC DATA"
 
 * Define path for data sources
 global SOURCE "${root}/RAW DATA/Recode V"
-	if `pc' == 4 global SOURCE "/Volumes/Seagate Portable Drive 1/HEFPI DATA/RAW DATA/DHS/DHS V"
+	if `pc' == 4 global SOURCE "/Volumes/Seagate Bas/HEFPI DATA/RAW DATA/DHS/DHS V"
 
 * Define path for output data
 global OUT "${root}/STATA/DATA/SC/FINAL"
@@ -359,7 +359,7 @@ use `hm',clear
 	//bysort hv001 hv002: egen min = min(w_sampleweight)
 	//replace w_sampleweight = min if w_sampleweight ==.
     replace hm_headrel = 99 if _merge == 2
-	label define hm_headrel_lab 99 "dead/no longer in the household"
+	label define hm_headrel_lab 1 "head" 2 "wife/husband" 3 "son/daughter" 4 "son/daughter-in-law" 5 "grandchild" 6 "parent" 7 "parent-in-law" 8 "brother/sister" 10 "other relative" 11 "adopted child" 12 "not related" 13 "foster" 14 "stepchild" 99 "dead/no longer in the household"
 	label values hm_headrel hm_headrel_lab
 	replace hm_live = 0 if _merge == 2 | inlist(hm_headrel,.,12,98)
 	drop _merge
@@ -441,7 +441,7 @@ restore
 	
 	***for variables generated from 8_child_illness	
 	foreach var of var c_ari c_ari2	c_diarrhea 	c_diarrhea_hmf	c_diarrhea_medfor	c_diarrhea_mof	c_diarrhea_pro	c_diarrheaact ///
-	c_diarrheaact_q	c_fever	c_fevertreat	c_illness	c_illtreat	c_sevdiarrhea	c_sevdiarrheatreat ///
+	c_diarrheaact_q	c_fever	c_fevertreat	c_illness c_illness2	c_illtreat c_illtreat2	c_sevdiarrhea	c_sevdiarrheatreat ///
 	c_sevdiarrheatreat_q	c_treatARI c_treatARI2	c_treatdiarrhea	c_diarrhea_med {
     replace `var' = . if !inrange(hm_age_mon,0,59)
     }
