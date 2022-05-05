@@ -192,6 +192,12 @@ order *,sequential
 		}
 	}
 	
+	* raw variables exist, but na
+	if inlist(name,"Benin2006","Congorep2005","Congodr2007","Indonesia2007","Mali2006","Niger2006") {
+		replace c_anc_public = .
+		replace c_anc_hosp = .
+	}
+	
 				
 	*w_sampleweight.
 	gen w_sampleweight = v005/10e6
