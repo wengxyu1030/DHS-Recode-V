@@ -54,6 +54,8 @@ do "${DO}/0_GLOBAL.do"
 // Tanzania2010 TimorLeste2009 Turkey2008 Uganda2006 Ukraine2007 Zambia2007 Zimbabwe2005         
 
 global DHScountries_Recode_V "Albania2008 Azerbaijan2006 Bangladesh2007 Benin2006 Bolivia2008 Cambodia2005 Cambodia2010 Colombia2010 Congorep2005 Congodr2007 DominicanRepublic2007 Egypt2008 Eswatini2006 Ghana2008 Guyana2009 Haiti2005 Honduras2005 India2005 Indonesia2007 Jordan2007 Kenya2008 Lesotho2009 Liberia2007 Madagascar2008 Malawi2010 Maldives2009 Mali2006 Namibia2006 Nepal2006  Niger2006 Nigeria2008 Pakistan2006 Peru2004 Peru2007 Peru2009 Peru2010 Peru2011 Peru2012 Philippines2008 SaoTomePrincipe2008 SierraLeone2008 Tanzania2010 TimorLeste2009 Turkey2008 Uganda2006 Ukraine2007 Zambia2007 Zimbabwe2005"
+global DHScountries_Recode_V "Eswatini2006"
+
 
 foreach name in $DHScountries_Recode_V {	
 
@@ -387,11 +389,14 @@ drop c_placeholder
 	gen year = real(substr("`name'",-4,.))
 	tostring(year),replace
     gen country = regexs(0) if regexm("`name'","([a-zA-Z]+)")
-	
+	if inlist("`name'","Eswatini2006") {
+		replace country = "Eritrea" /*official name changed*/
+	}
+			
     merge m:1 country using `iso',force
     drop if _merge == 2
 	drop _merge
-
+	
 *** Quality Control: Validate with DHS official data
 gen surveyid = iso2c+year+"DHS"
 
