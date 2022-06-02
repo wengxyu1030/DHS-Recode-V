@@ -42,6 +42,9 @@ order *,sequential  //make sure variables are in order.
 	regexm(m15_lab,"hospital|hosp") & !regexm(m15_lab,"center|sub-center")
 	replace c_hospdel = . if mi(m15) | inlist(m15,98,99) | mi(m15_lab)	
     // please check this indicator in case it's country specific	
+	if inlist(name,"Albania2008") {	
+		replace c_hospdel = 1 if m15 == 24
+	}		
 	
 	*c_facdel: child born in formal health facility of births in last 2 years
 	gen c_facdel = 0 if !mi(m15)
