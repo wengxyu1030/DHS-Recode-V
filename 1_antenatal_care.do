@@ -205,8 +205,31 @@ order *,sequential
 	* For Peru2012 & Honduras2005, the hv002 lost 2-3 digits, fix this issue in main.do, 1.do,4.do & 13.do
 	if inlist(name,"Peru2012"){
 		drop v002
-		gen v002 = substr(caseid,5,5)
+		gen v002 = substr(caseid,5,5)		
 		isid v000 v001 v002 v003 bidx
+		
+		order caseid v000 v001 v002 v003
+		gen subid = substr(caseid,14,2)
+		destring v002,replace 
+	}	
+	
+	if inlist(name,"Peru2013","Peru2014","Peru2015","Peru2016") | inlist(name,"Peru2017","Peru2018","Peru2019","Peru2020","Peru2021"){
+		drop v002
+		gen v002 = substr(caseid,11,5)
+		
+		bysort v001 v002 v003: egen sum_missing_bidx = sum(missing(bidx))
+		bysort v001 v002 v003: egen missing_bidx = max(missing(bidx))
+
+		*browse caseid hhid v000 v001 v002 v003 bidx missing_bidx missing_bidx12 if missing_bidx == 1 | missing_bidx12 == 1
+		*tab sum_missing_bidx if missing_bidx
+		
+		qui tab sum_missing_bidx if missing_bidx
+		if r(r) == 1 {
+			replace bidx = 1 if missing_bidx == 1
+		}
+		
+		isid v000 v001 v002 v003 bidx
+		
 		order caseid v000 v001 v002 v003
 		gen subid = substr(caseid,14,2)
 		destring v002,replace 

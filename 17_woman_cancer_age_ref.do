@@ -24,7 +24,7 @@ replace w_papsmear_ref  = "1yr" if country_year=="`y'"
 if inlist(name,"DominicanRepublic2013","Honduras2011") {
 replace w_papsmear_ref = "2yr" if country_year=="`y'"
 }
-if inlist(name,"Philippines1998","Philippines2003","Peru1996","Peru2000","Peru2004","Peru2009","Peru2010","Peru2011","Peru2012") {
+if inlist(name,"Philippines1998","Philippines2003","Peru1996","Peru2000","Peru2004","Peru2009","Peru2010","Peru2011","Peru2012") | inlist(name,"Peru2013","Peru2014","Peru2015","Peru2016","Peru2017","Peru2018","Peru2019","Peru2020","Peru2021") {
 replace w_papsmear_ref = "5yr" if country_year=="`y'"
 }
 if inlist(name,"CotedIvoire2011","Jordan2007","Jordan2012","Namibia2013","Kenya2014") {
@@ -50,14 +50,14 @@ replace w_mamogram_ref = "ever" if country_year=="`y'"
 *tag the micro-data accordingly for w_papsmear
 replace w_papsmear_age = "20-49"  if miss_p ! = 1 
 
-if inlist(name,"Peru2013","Peru2014","Peru2015","Peru2016") {
+if inlist(name,"Peru2013","Peru2014","Peru2015","Peru2016","Peru2017","Peru2018","Peru2019","Peru2020","Peru2021") {
 replace w_papsmear_age = "20-59" if country_year=="`y'"
 }
 
 *tag the micro-data accordingly for w_mamogram_ref
 replace w_mamogram_age = "40-49" if miss_m ! = 1 
 
-if inlist(name,"Peru2013","Peru2014","Peru2015","Peru2016" ) {
+if inlist(name,"Peru2013","Peru2014","Peru2015","Peru2016","Peru2017","Peru2018","Peru2019","Peru2020","Peru2021") {
 replace w_mamogram_age = "50-69" if country_year=="`y'"
 }
 

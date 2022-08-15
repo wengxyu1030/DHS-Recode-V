@@ -26,7 +26,7 @@
 	// survey that child pnc is collected only if mother delivered at home or other facility
 	gen c_pnc_any = .
 	// survey that child pnc is collected from the whole sample 
-	if inlist(name,"Bolivia2008","Cambodia2010","Egypt2008","Lesotho2009","Turkey2008") | inlist(name, "Peru2004","Peru2007","Peru2009","Peru20010","Peru2011","Peru2012"){	
+	if inlist(name,"Bolivia2008","Cambodia2010","Egypt2008","Lesotho2009","Turkey2008") | inlist(name, "Peru2004","Peru2007","Peru2009","Peru20010","Peru2011","Peru2012","Peru2013") | inlist(name,"Peru2014","Peru2015","Peru2016","Peru2017","Peru2018","Peru2019","Peru2020","Peru2021") {	
 		replace c_pnc_any = 0 if m62 != . | m66 != . | m70 != .
 		replace c_pnc_any = 1 if ((m63 <= 242 | inrange(m63,301,306) | m63 == 299 ) & m64_skill == 1 ) | ((m67 <= 242 | inrange(m67,301,306) | m67 == 299 ) & m68_skill == 1 ) | ((m71 <= 242 | inrange(m71,301,306) | m71 == 299 ) & m72_skill == 1 )
 		replace c_pnc_any = . if (((inlist(m63,399,995,998,999)|m64_skill ==.) & m62 !=0) & ((inlist(m67,399,995,998,999)|m68_skill ==.) & m66 !=0)) | ((inlist(m71,399,995,998,999)|m72_skill ==.) & m70 !=0) | inlist(m62,8,9)|inlist(m66,8,9)|inlist(m70,8,9)
@@ -40,8 +40,9 @@
 		replace c_pnc_eff = 1 if (((inrange(m63,100,124) | m63 == 201| m63 == 199 ) & m64_skill == 1) | ((inrange(m67,100,124) | m67 == 201| m67 == 199) & m68_skill == 1)) & ((inrange(m71,100,124) | m71 == 201| m71 == 199) & m72_skill == 1) 
 		replace c_pnc_eff = . if ((inlist(m67,.,299,399,995,998,999)|m68_skill ==.) & m66 !=0) | ((inlist(m71,.,299,399,995,998,999)|m72_skill ==.) & m70 !=0)| inlist(m62,8,9) | inlist(m66,8,9) | inlist(m70,8,9)
 	*/
+	
 	// survey that child pnc is collected from the whole sample 
-	if inlist(name,"Bolivia2008","Cambodia2010","Egypt2008","Lesotho2009","Turkey2008") | inlist(name, "Peru2004","Peru2007","Peru2009","Peru20010","Peru2011","Peru2012"){	
+	if inlist(name,"Bolivia2008","Cambodia2010","Egypt2008","Lesotho2009","Turkey2008") | inlist(name, "Peru2004","Peru2007","Peru2009","Peru2010","Peru2011","Peru2012","Peru2013","Peru2014") | inlist(name,"Peru2015","Peru2016","Peru2017","Peru2018","Peru2019","Peru2020","Peru2021") {	
 	drop c_pnc_eff
 	replace m62=0 if  m62 ==. & inlist(m15,11,12,96)       // for mother deliver at home/other facility, their pnc info. are record in m66-m68, and m62 m63 m64 are skipped. recode m62=0 if mother deliver at home
 	replace m66=0 if  m66 ==. & !inlist(m15,11,12,96,98,99,.) // vice versa

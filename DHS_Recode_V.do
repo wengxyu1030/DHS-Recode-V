@@ -54,7 +54,11 @@ do "${DO}/0_GLOBAL.do"
 // Tanzania2010 TimorLeste2009 Turkey2008 Uganda2006 Ukraine2007 Zambia2007 Zimbabwe2005         
 
 global DHScountries_Recode_V "Albania2008 Azerbaijan2006 Bangladesh2007 Benin2006 Bolivia2008 Cambodia2005 Cambodia2010 Colombia2010 Congorep2005 Congodr2007 DominicanRepublic2007 Egypt2008 Eswatini2006 Ghana2008 Guyana2009 Haiti2005 Honduras2005 India2005 Indonesia2007 Jordan2007 Kenya2008 Lesotho2009 Liberia2007 Madagascar2008 Malawi2010 Maldives2009 Mali2006 Namibia2006 Nepal2006  Niger2006 Nigeria2008 Pakistan2006 Peru2004 Peru2007 Peru2009 Peru2010 Peru2011 Peru2012 Philippines2008 SaoTomePrincipe2008 SierraLeone2008 Tanzania2010 TimorLeste2009 Turkey2008 Uganda2006 Ukraine2007 Zambia2007 Zimbabwe2005"
+
 global DHScountries_Recode_V "Eswatini2006"
+global DHScountries_Recode_V "Mali2006 Benin2006 Congodr2007 Congorep2005 Indonesia2007"
+
+global DHScountries_Recode_V "Peru2013 Peru2014 Peru2015 Peru2016 Peru2017 Peru2018 Peru2019 Peru2020 Peru2021"
 
 
 foreach name in $DHScountries_Recode_V {	
@@ -243,7 +247,7 @@ gen name = "`name'"
 
 capture confirm file "${INTER}/zsc_hm.dta"
 	if _rc == 0 {
-	merge 1:1 hhid hvidx using "${INTER}/zsc_hm.dta",nogen
+	merge 1:1 hhid hvidx using "${INTER}/zsc_hm.dta",nogen 
 	rename (hc70 hc71 hc72) (hm_hc70 hm_hc71 hm_hc72)
 	}
 	if _rc != 0 {
@@ -259,15 +263,18 @@ keep hv001 hv002 hvidx ///
 c_* a_* hm_* ln *hc70 *hc71 *hc72 // *hc70 *hc71 are correct for now, may need to be changed in some cases
 save `hm'
 
+if (!inlist("`name'","Peru2013","Peru2014","Peru2015", "Peru2016") & !inlist("`name'","Peru2017","Peru2018","Peru2019","Peru2020","Peru2021")) {
+
 capture confirm file "${SOURCE}/DHS-`name'/DHS-`name'hiv.dta"
  	if _rc==0 {
     use "${SOURCE}/DHS-`name'/DHS-`name'hiv.dta", clear
     do "${DO}/12_hiv"
  	}
- 	if _rc!= 0 {
+ 	if _rc!= 0 {	
     gen a_hiv = . 
     gen a_hiv_sampleweight = .
     }  
+	
 keep a_hiv* hv001 hv002 hvidx 
 save `hiv'
 
@@ -275,11 +282,20 @@ use `hm',clear
 merge 1:1 hv001 hv002 hvidx using `hiv'
 drop _merge
 save `hm',replace
+
+}
+else {
+    gen a_hiv = . 
+    gen a_hiv_sampleweight = .
+
+	save `hm',replace
+}
+
 ************************************
 *****domains using hh level data****
 ************************************
 gen name = "`name'"
-if !inlist(name,"Honduras2005","Peru2012"){
+if (!inlist(name,"Honduras2005","Peru2012","Peru2013","Peru2014","Peru2015","Peru2016") & !inlist(name,"Peru2017","Peru2018","Peru2019","Peru2020","Peru2021")){
 use "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", clear
     rename (hv001 hv002 hvidx) (v001 v002 v003)
 
@@ -289,11 +305,12 @@ use "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", clear
 	gen name = "`name'"
 }
 * For Peru2012 & Honduras2005, the hv002 lost 2-3 digits, fix this issue in main.do, 1.do,4.do,12.do & 13.do
-if inlist(name,"Peru2012"){
+if inlist(name,"Peru2012","Peru2013","Peru2014","Peru2015","Peru2016") | inlist(name,"Peru2017","Peru2018","Peru2019","Peru2020","Peru2021"){
 	tempfile birthspec
 	use "${SOURCE}/DHS-`name'/DHS-`name'birth.dta",clear
 	drop v002
 	gen v002 = substr(caseid,5,5)
+	
 	destring v002,replace
 	save `birthspec',replace
 	
@@ -337,7 +354,6 @@ if inlist(name,"Honduras2005"){
 keep hv001 hv002 hv003 hh_* 
 save `hh' 
 
-
 ************************************
 *****merge to microdata*************
 ************************************
@@ -355,7 +371,6 @@ save `iso'
 
 ***merge all subset of microdata
 use `hm',clear
-
     merge 1:m hv001 hv002 hvidx using `birth',update              //missing update is zero, non missing conflict for all matched.(hvidx different) 
 
 	//bysort hv001 hv002: egen min = min(w_sampleweight)
@@ -370,16 +385,20 @@ use `hm',clear
     
     tab hh_urban,mi  //check whether all hh member + dead child + child lives outside hh assinged hh info
 
+	if inlist("`name'","Eswatini2006") {
+		cap rename hc70 hc70raw
+		cap rename hc71 hc71raw
+		cap rename hc72 hc72raw
+	}
+	
 capture confirm variable c_hc70 c_hc71 c_hc72
 if _rc == 0 {
 rename (c_hc70 c_hc71 c_hc72) (hc70 hc71 hc72)
 }
-
 capture confirm variable hm_hc70 hm_hc71 hm_hc72
 if _rc == 0 {
 rename (hm_hc70 hm_hc71 hm_hc72) (hc70 hc71 hc72)
 }
-
 rename c_ant_sampleweight ant_sampleweight
 drop c_placeholder
 

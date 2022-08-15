@@ -122,7 +122,8 @@ order *,sequential  //make sure variables are in order.
 		replace c_ari = . if inlist(h31b,8,9) | inlist(h31c,8,9)	
 		replace c_ari = . if (ccough==1 & h31b ==.) | (h31b ==1 & h31c ==.)
 		
-		if inlist(name,"Bolivia2008","Niger2006"){
+*DW July 2022 - added Benin2006, COD2007, COG2005, Indonesia2007, Mali2006
+		if inlist(name,"Bolivia2008","Niger2006","Benin2006","Congodr2007","Congorep2005","Indonesia2007","Mali2006"){
 			replace c_ari = .
 		}
 		

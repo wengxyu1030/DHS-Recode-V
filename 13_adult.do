@@ -312,7 +312,7 @@
 	} 
 
 	* For Peru2012 & Honduras2005, the hv002 lost 2-3 digits, fix this issue in main.do, 1.do,4.do & 13.do
-	if inlist(name,"Peru2012"){
+	if inlist(name,"Peru2012","Peru2013","Peru2014","Peru2015","Peru2016") | inlist(name,"Peru2017","Peru2018","Peru2019","Peru2020","Peru2021"){
 		drop hv002
 		gen hv002 = substr(hhid,11,5)
 		isid hv000 hv001 hv002 hvidx

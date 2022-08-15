@@ -84,6 +84,7 @@ order *,sequential  //make sure variables are in order.
 	
     *c_sba_eff1: Effective delivery care (baby delivered in facility, by skilled provider, mother and child stay in facility for min. 24h, breastfeeding initiated in first 1h after birth)
 
+	
 	if !inlist(name,"Cambodia2005","India2005","Kenya2008","Peru2004","Peru2007","Peru2009","Uganda2006"){
 		gen stay = 0
 		replace stay = 1 if inrange(m61,124,198)|inrange(m61,200,298)|inrange(m61,301,399)

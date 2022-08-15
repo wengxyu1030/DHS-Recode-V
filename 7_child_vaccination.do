@@ -110,7 +110,7 @@
 			replace c_dpt3  = . if h7 > 3 | spv3 > 3
 		}
 		
-		if inlist(name,"Peru2004","Peru2007","Peru2009","Peru2010","Peru2011","Peru2012") {
+		if inlist(name,"Peru2004","Peru2007","Peru2009","Peru2010","Peru2011","Peru2012","Peru2013","Peru2014") | inlist(name,"Peru2015","Peru2016","Peru2017","Peru2018","Peru2019","Peru2020","Peru2021") {
 			drop c_dpt1 c_dpt2 c_dpt3
 			
 			gen c_dpt1  = . 

@@ -38,6 +38,10 @@
 	
 	 tempfile temp1 temp2 temp3
 	 
+	 if inlist(name,"Peru2018") {
+		cap gen v007 = 2018
+	 }
+	 
 	 preserve
      do "${DO}/Add unmetFP_DHS.do"
 	 gen w_metany_fp = 1 if inlist(unmet,3,4)
@@ -75,7 +79,17 @@
     gen w_metany_fp_q = (w_CPR == 1) if w_need_fp == 1 
 	 
 	* For Peru2012, the v002 lost 2-3 digits, fix this issue in main.do, 1.do,4.do,12.do & 13.do
-	if inlist(name,"Peru2012"){
+	if inlist(name,"Peru2012","Peru2013","Peru2014","Peru2015") | inlist(name,"Peru2016","Peru2017","Peru2018","Peru2019","Peru2020","Peru2021"){
+		* DW : Peru2013 misses observations for v001/002/003
+		if inlist(name,"Peru2013") {
+			rename (v001 v003) (v001orig v003orig)
+			gen v001 = substr(caseid,4,7)
+			destring v001,replace
+			gen v003 = substr(caseid,16,3)
+			destring v003,replace
+
+		}
+	
 		drop v002
 		gen v002 = substr(caseid,11,5)
 		gen subid = substr(caseid,14,2)
@@ -83,6 +97,7 @@
 		order caseid v000 v001 v002 v003
 		destring v002,replace
 	}	
+
 
 	if inlist(name,"Honduras2005"){
 		drop v002

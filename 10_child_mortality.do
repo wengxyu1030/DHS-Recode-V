@@ -31,6 +31,7 @@
 	gen hm_birthorder = bord
 
 *c_magebrt: Mother's age at birth [DW - NOV2021]
-	gen c_magebrt = v012 - (v007-b2)
-		
-
+	cap gen c_magebrt = v012 - (v007-b2)
+		if inlist(name,"Peru2018") {
+			gen c_magebrt = v012 - (2018 - b2)
+		}
